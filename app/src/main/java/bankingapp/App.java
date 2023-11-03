@@ -134,16 +134,16 @@ public class App {
 
         // Prompt the user for the card number of the account they want to transfer funds to
         System.out.println("Transfer");
-        System.out.println("Enter card number:");
-        String cardNumber = input.nextLine();
+        System.out.println("Enter account number:");
+        String accountNumber = input.nextLine();
 
-        // Check if the card number is valid using the Luhn's algorithm
-        if (CreateAccount.luhnsAlgorithmCheck(cardNumber)) {
+        // Check if the account number is valid using the Luhn's algorithm
+        if (CreateAccount.luhnsAlgorithmCheck(accountNumber)) {
 
-            // Check if the card number is in the database and belongs to another account
-            if (!db.checkAcc_withoutPin(cardNumber)) {
+            // Check if the account number is in the database and belongs to another account
+            if (!db.checkAcc_withoutPin(accountNumber)) {
                 System.out.println("Such a card does not exist");
-            } else if (cardNumber.equals(accountNum)) {
+            } else if (accountNumber.equals(accountNum)) {
                 System.out.println("You can't transfer money to the same account!");
             } else {
 
@@ -157,14 +157,31 @@ public class App {
                 } else {
 
                     // Add the transferred funds to the recipient's account and deduct them from the user's account
-                    db.addIncome(funds, cardNumber);
-                    db.deductBalance(funds,accountNum);
-                    System.out.println("Success!");
+                    try {
+                        //setting the autoCommit to off to control transaction
+                        connection.setAutoCommit(false);
+                        db.addIncome(funds, accountNumber);
+
+                        //check balance to know if a transaction has occurred
+                        int rowsUpdated = db.checkBalance(accountNumber);
+
+                        //If a row was updated, transaction was successful then commit
+                        if(rowsUpdated > 0){
+                            connection.commit();
+                            System.out.println("Success!");
+                            db.deductBalance(funds,accountNum);
+                        }
+                    } catch (SQLException e){
+                        //If transaction was unsuccessful or an error occurred rollback the transaction
+                        connection.rollback();
+                        e.printStackTrace();
+                    } finally {
+                        connection.setAutoCommit(true);
+                    }
                 }
             }
         } else {
             System.out.println("Probably you made a mistake in the card number. Please try again");
-
         }
     }
 }

@@ -6,3 +6,7 @@ build
 
 # Ignore saving DB files
 account.db
+
+#ignore web files
+.xml
+.jsp
