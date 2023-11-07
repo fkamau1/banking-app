@@ -15,6 +15,20 @@ public class DBTransactions implements IDBTransactions {
     }
 
     /**
+     * Closes the database connection associated with this DBTransactions instance.
+     * If the connection is not null, it will be closed. Any exceptions that occur
+     * during the closing process will be propagated as SQLExceptions.
+     *
+     * @throws SQLException if a database access error occurs or if the connection
+     *                      cannot be closed
+     */
+    public void close() throws SQLException{
+        if(connection != null){
+            connection.close();
+        }
+    }
+
+    /**
      * Method createDB creates a new table in the SQLite database if it does not already exist. It takes a Statement
      * object as input and throws an SQLException if there is an error executing the SQL command.
      * @throws SQLException
