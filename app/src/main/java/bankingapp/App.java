@@ -41,7 +41,6 @@ public class App {
 
                 try {
 
-
                     db.createDB();
 
                     int response = -1;
