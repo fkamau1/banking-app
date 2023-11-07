@@ -37,7 +37,7 @@ public class App {
             try (Statement statement = connection.createStatement()) {
 
                 //Create DB
-                DBTransactions db = new DBTransactions();
+                IDBTransactions db = new DBTransactions();
                 db.createDB();
 
                 int response = -1;
