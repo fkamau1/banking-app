@@ -1,5 +1,5 @@
 /**
- * A simple banking application that allows users to create a new account and log into an existing account.
+ * A banking application that allows users to create a new account and log into an existing account.
  * The application uses SQLite as its database and includes helper classes for creating and manipulating the database,
  * as well as classes for creating and logging into user accounts.
  *
@@ -38,86 +38,93 @@ public class App {
 
                 //Create DB
                 DBTransactions db = new DBTransactions();
-                db.createDB();
 
-                int response = -1;
+                try {
 
-                do {
-                    System.out.println("\n1. Create an account\n" +
-                            "2. Log into account\n" +
-                            "0. Exit");
 
-                    try {
-                        System.out.print("> ");
-                        response = Integer.parseInt(input.nextLine());
+                    db.createDB();
 
-                        switch (response) {
+                    int response = -1;
 
-                            case 1:
-                                //Create a new user account
-                                String firstName;
-                                String lastName;
+                    do {
+                        System.out.println("\n1. Create an account\n" +
+                                "2. Log into account\n" +
+                                "0. Exit");
 
-                                 //Prompt user input for first and last names
-                                 System.out.println("Enter First Name: ");
-                                 System.out.print("> ");
-                                 do {
-                                    firstName = input.nextLine();
-                                 } while (firstName.equals(null) || firstName.trim().isEmpty());
+                        try {
+                            System.out.print("> ");
+                            response = Integer.parseInt(input.nextLine());
 
-                                 System.out.println("Enter Last Name: ");
-                                 System.out.print("> ");
-                                 do {
-                                    lastName = input.nextLine();
-                                 }while (lastName.equals(null) || lastName.trim().isEmpty());
+                            switch (response) {
 
-                                //Create a new account object
-                                CreateAccount account = new CreateAccount();
+                                case 1:
+                                    //Create a new user account
+                                    String firstName;
+                                    String lastName;
 
-                                //Create a new account number and pin
-                                account.setAccountNumber();
-                                account.setPinNumber();
+                                    //Prompt user input for first and last names
+                                    System.out.println("Enter First Name: ");
+                                    System.out.print("> ");
+                                    do {
+                                        firstName = input.nextLine();
+                                    } while (firstName.equals(null) || firstName.trim().isEmpty());
 
-                                //Display new user details
-                                System.out.println(new CreateAccount(firstName, lastName, account.getAccountNumber(),
-                                        account.getPinNumber()));
+                                    System.out.println("Enter Last Name: ");
+                                    System.out.print("> ");
+                                    do {
+                                        lastName = input.nextLine();
+                                    } while (lastName.equals(null) || lastName.trim().isEmpty());
 
-                                //Input new user info into DB
-                                db.insertDB(firstName,lastName, account.getAccountNumber(),
-                                        String.valueOf(account.getPinNumber()));
-                                break;
+                                    //Create a new account object
+                                    CreateAccount account = new CreateAccount();
 
-                            case 2:
-                                //login to an existing account
-                                String accountNumber;
-                                String pinNumber;
+                                    //Create a new account number and pin
+                                    account.setAccountNumber();
+                                    account.setPinNumber();
 
-                                //Prompt user input for first and last names
-                                System.out.println("\nEnter your account number:");
-                                System.out.print("> ");
-                                do {
-                                    accountNumber = input.nextLine();
-                                } while (accountNumber.equals(null) || accountNumber.trim().isEmpty());
+                                    //Display new user details
+                                    System.out.println(new CreateAccount(firstName, lastName, account.getAccountNumber(),
+                                            account.getPinNumber()));
 
-                                System.out.println("Enter your PIN:");
-                                System.out.print("> ");
-                                do {
-                                    pinNumber = input.nextLine();
-                                } while (pinNumber.equals(null) || pinNumber.trim().isEmpty());
+                                    //Input new user info into DB
+                                    db.insertDB(firstName, lastName, account.getAccountNumber(),
+                                            String.valueOf(account.getPinNumber()));
+                                    break;
 
-                                //Log in to an existing account
-                                LogIn login = new LogIn();
-                                login.checkAccount(db, connection, accountNumber, pinNumber);
-                                break;
+                                case 2:
+                                    //login to an existing account
+                                    String accountNumber;
+                                    String pinNumber;
+
+                                    //Prompt user input for first and last names
+                                    System.out.println("\nEnter your account number:");
+                                    System.out.print("> ");
+                                    do {
+                                        accountNumber = input.nextLine();
+                                    } while (accountNumber.equals(null) || accountNumber.trim().isEmpty());
+
+                                    System.out.println("Enter your PIN:");
+                                    System.out.print("> ");
+                                    do {
+                                        pinNumber = input.nextLine();
+                                    } while (pinNumber.equals(null) || pinNumber.trim().isEmpty());
+
+                                    //Log in to an existing account
+                                    LogIn login = new LogIn();
+                                    login.checkAccount(db, connection, accountNumber, pinNumber);
+                                    break;
+                            }
+                        } catch (InputMismatchException e) {
+                            System.out.println("Invalid input");
+                            input.nextLine();
                         }
-                    }catch (InputMismatchException e){
-                        System.out.println("Invalid input");
-                        input.nextLine();
-                    }
-                } while (response != 0);
+                    } while (response != 0);
 
-                System.out.println("\nBye!");
-
+                    System.out.println("\nBye!");
+                }finally {
+                    //Close the DB resource
+                    db.close();
+                }
                 //Close the Statement Object
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -131,57 +138,61 @@ public class App {
 
 
     public static void transferFunds(DBTransactions db, Connection connection, String accountNum) throws SQLException {
+        try {
+            // Prompt the user for the card number of the account they want to transfer funds to
+            System.out.println("Transfer");
+            System.out.println("Enter account number:");
+            String accountNumber = input.nextLine();
 
-        // Prompt the user for the card number of the account they want to transfer funds to
-        System.out.println("Transfer");
-        System.out.println("Enter account number:");
-        String accountNumber = input.nextLine();
+            // Check if the account number is valid using the Luhn's algorithm
+            if (CreateAccount.luhnsAlgorithmCheck(accountNumber)) {
 
-        // Check if the account number is valid using the Luhn's algorithm
-        if (CreateAccount.luhnsAlgorithmCheck(accountNumber)) {
-
-            // Check if the account number is in the database and belongs to another account
-            if (!db.checkAcc_withoutPin(accountNumber)) {
-                System.out.println("Such a card does not exist");
-            } else if (accountNumber.equals(accountNum)) {
-                System.out.println("You can't transfer money to the same account!");
-            } else {
-
-                // Prompt the user for the amount of money to transfer
-                System.out.println("Enter how much money you want to transfer:");
-                int funds = input.nextInt();
-
-                // Check if the user has enough balance to transfer the requested amount of money
-                if (funds > db.checkBalance(accountNum)) {
-                    System.out.println("Not enough money!");
+                // Check if the account number is in the database and belongs to another account
+                if (!db.checkAcc_withoutPin(accountNumber)) {
+                    System.out.println("Such a card does not exist");
+                } else if (accountNumber.equals(accountNum)) {
+                    System.out.println("You can't transfer money to the same account!");
                 } else {
 
-                    // Add the transferred funds to the recipient's account and deduct them from the user's account
-                    try {
-                        //setting the autoCommit to off to control transaction
-                        connection.setAutoCommit(false);
-                        db.addIncome(funds, accountNumber);
+                    // Prompt the user for the amount of money to transfer
+                    System.out.println("Enter how much money you want to transfer:");
+                    int funds = input.nextInt();
 
-                        //check balance to know if a transaction has occurred
-                        int rowsUpdated = db.checkBalance(accountNumber);
+                    // Check if the user has enough balance to transfer the requested amount of money
+                    if (funds > db.checkBalance(accountNum)) {
+                        System.out.println("Not enough money!");
+                    } else {
 
-                        //If a row was updated, transaction was successful then commit
-                        if(rowsUpdated > 0){
-                            connection.commit();
-                            System.out.println("Success!");
-                            db.deductBalance(funds,accountNum);
+                        // Add the transferred funds to the recipient's account and deduct them from the user's account
+                        try {
+                            //setting the autoCommit to off to control transaction
+                            connection.setAutoCommit(false);
+                            db.addIncome(funds, accountNumber);
+
+                            //check balance to know if a transaction has occurred
+                            int rowsUpdated = db.checkBalance(accountNumber);
+
+                            //If a row was updated, transaction was successful then commit
+                            if (rowsUpdated > 0) {
+                                connection.commit();
+                                System.out.println("Success!");
+                                db.deductBalance(funds, accountNum);
+                            }
+                        } catch (SQLException e) {
+                            //If transaction was unsuccessful or an error occurred rollback the transaction
+                            connection.rollback();
+                            e.printStackTrace();
+                        } finally {
+                            connection.setAutoCommit(true);
                         }
-                    } catch (SQLException e){
-                        //If transaction was unsuccessful or an error occurred rollback the transaction
-                        connection.rollback();
-                        e.printStackTrace();
-                    } finally {
-                        connection.setAutoCommit(true);
                     }
                 }
+            } else {
+                System.out.println("Probably you made a mistake in the card number. Please try again");
             }
-        } else {
-            System.out.println("Probably you made a mistake in the card number. Please try again");
+        } finally {
+            //Close the DB resource
+            db.close();
         }
     }
 }
