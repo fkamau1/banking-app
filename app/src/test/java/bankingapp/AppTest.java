@@ -16,11 +16,24 @@ public class AppTest {
         //Method to create account
         CreateAccount account = new CreateAccount();
 
-        //Generate account number
+        //Test generating account number
         account.setAccountNumber();
 
-        //Validate
+        //Validate account number
         String accountNum = account.getAccountNumber();
+
+        //Test setting PIN number
+        account.setPinNumber();
+
+        //Validate PIN number
+        int pin = account.getPinNumber();
+
+        //Ensure the generated PIN number is within pin >=1000 && pin <= 9999
+        assertTrue(pin >= 1000 && pin <= 9999);
+
+        //Ensure PIN is a 4 digit number
+        assertEquals(4, String.valueOf(pin).length());
+
 
         //Asserts
         assertNotNull(accountNum);
