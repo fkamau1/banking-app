@@ -34,9 +34,21 @@ public class AppTest {
         //Ensure PIN is a 4 digit number
         assertEquals(4, String.valueOf(pin).length());
 
-
         //Asserts
         assertNotNull(accountNum);
         assertTrue(CreateAccount.luhnsAlgorithmCheck(accountNum));
     }
+
+    @Test
+    public void testLuhnsAlgorithmValid(){
+        //Test an actual number already passing luhns algorith check
+        assertTrue(CreateAccount.luhnsAlgorithmCheck( "502091324785"));
+    }
+
+    @Test
+    public void testLuhnsAlgorithmInvalid(){
+        //Test an invalid number
+        assertFalse(CreateAccount.luhnsAlgorithmCheck( "1234567891234"));
+    }
+
 }
