@@ -208,4 +208,15 @@ public class DBTransactions implements IDBTransactions {
         }
     }
 
+    /** 
+     * 
+     * For testing purposes in order to test with temporary values
+     * 
+    */
+    public void closeDB() throws SQLException {
+        if (connection != null && !connection.isClosed()) {
+            connection.close();
+        }
+    }
+
 }
