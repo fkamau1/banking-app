@@ -16,6 +16,11 @@ jar {
     manifest {
         attributes 'Main-Class': 'bankingapp.App'
     }
+
+    // Create a "fat JAR" by including all dependencies
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 repositories {
@@ -32,7 +37,8 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
 
     // JDBC
-    implementation 'org.xerial:sqlite-jdbc:3.40.0.0'
+    implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
+
 }
 
 test {
