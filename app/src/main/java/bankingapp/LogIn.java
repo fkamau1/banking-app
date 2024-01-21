@@ -36,9 +36,10 @@ public class LogIn {
                 do {
                     System.out.println("\n1. Balance\n" +
                             "2. Add income\n" +
-                            "3. Do transfer\n" +
-                            "4. Close Account\n" +
-                            "5. Log Out\n" +
+                            "3. Withdraw\n" +
+                            "4. Do transfer\n" +
+                            "5. Close Account\n" +
+                            "6. Log Out\n" +
                             "0. Exit");
 
                     answer = input.nextInt();
@@ -57,10 +58,18 @@ public class LogIn {
                             break;
 
                         case 3:
-                            App.transferFunds(db, con, accountNumber);
+                            System.out.println("Enter amount to withdraw:");
+                            int withdraw = input.nextInt();
+                            db.deductBalance(withdraw, accountNumber);
+                            System.out.println("Amount withdrawn: " + withdraw);
+                            System.out.println("New balance: " + db.checkBalance(accountNumber));
                             break;
 
                         case 4:
+                            App.transferFunds(db, con, accountNumber);
+                            break;
+
+                        case 5:
                             if (db.checkBalance(accountNumber) > 0) {
                                 System.out.println("Transfer account balance to a different account before closing");
                             } else {
@@ -70,12 +79,14 @@ public class LogIn {
                             }
                             break;
 
-                        case 5:
+                        case 6:
                             System.out.println("\nYou have successfully logged out");
                             break subMenu;
 
                         case 0:
+                            System.out.println("Bye");
                             System.exit(0);
+
                     }
                 } while (answer != 0);
 
